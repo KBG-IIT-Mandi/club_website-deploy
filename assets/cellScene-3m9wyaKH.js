@@ -1,4 +1,4 @@
-import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p as Te,A as ue,g as Fe,I as at,q as st,Q as nt,B as it,m as rt,f as _e,r as lt,R as ct,s as p}from"./three.module-DRiFt6mT.js";function oe(g){let e=g>>>0;return()=>{e|=0,e=e+1831565813|0;let x=Math.imul(e^e>>>15,1|e);return x=x+Math.imul(x^x>>>7,61|x)^x,((x^x>>>14)>>>0)/4294967296}}function t(g){return(g()+g()+g())/1.5-1}const ut=[5136383,3721471,3074264,3997550,11075374,14090030,16761134,16742972,16729431],Be=`
+import{W as ot,S as at,P as st,b as ie,a as H,F as nt,V as j,M as pe,d as De,e as k,p as Ge,A as de,g as Oe,I as it,q as rt,Q as lt,B as ct,m as ut,f as Re,r as mt,R as ft,s as d}from"./three.module-DRiFt6mT.js";function re(g){let e=g>>>0;return()=>{e|=0,e=e+1831565813|0;let y=Math.imul(e^e>>>15,1|e);return y=y+Math.imul(y^y>>>7,61|y)^y,((y^y>>>14)>>>0)/4294967296}}function t(g){return(g()+g()+g())/1.5-1}const ht=[5136383,3721471,3074264,3997550,11075374,14090030,16761134,16742972,16729431],We=`
   vec3 palPick(float seed) {
     float t = fract(seed * 9.73);
     vec3 c = uPal[0];
@@ -12,7 +12,7 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
     c = mix(c, uPal[8], step(0.975, t));
     return c;
   }
-`,Ae=()=>({value:ut.map(g=>new _e(g))}),We=`
+`,Be=()=>({value:ht.map(g=>new Re(g))}),ke=`
   vec3 mod289(vec3 x){ return x - floor(x * (1.0/289.0)) * 289.0; }
   vec4 mod289(vec4 x){ return x - floor(x * (1.0/289.0)) * 289.0; }
   vec4 permute(vec4 x){ return mod289(((x*34.0)+1.0)*x); }
@@ -74,7 +74,7 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
     m = m * m;
     return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
   }
-`,mt=`
+`,pt=`
   uniform float uTime;
   uniform float uAmp;
   uniform vec3  uProbeDir;
@@ -84,7 +84,7 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
   varying vec3 vPosW;
   varying float vDisp;
 
-  ${We}
+  ${ke}
 
   float membraneField(vec3 p, float t) {
     float n = snoise(p * 1.7 + vec3(0.0, t * 0.22, 0.0)) * 0.62
@@ -125,7 +125,7 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
   }
-`,ft=`
+`,dt=`
   uniform vec3  uBio;
   uniform vec3  uData;
   uniform float uOpacity;
@@ -151,6 +151,8 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
   attribute vec3 aPosA;
   attribute vec3 aPosB;
   attribute float aSeed;
+  attribute float aGeneA;
+  attribute float aGeneB;
 
   uniform float uTime;
   uniform float uStageMix;
@@ -162,10 +164,12 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
   varying float vSeed;
   varying float vTwinkle;
   varying float vWave;
+  varying float vGene;
   varying vec3 vShapePos;
 
   void main() {
     vSeed = aSeed;
+    vGene = mix(aGeneA, aGeneB, uStageMix);
 
     vec3 pos = mix(aPosA, aPosB, uStageMix);
 
@@ -201,10 +205,14 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
     vTwinkle = 0.72 + 0.28 * sin(uTime * (1.2 + aSeed) + aSeed * 6.28);
 
     vec4 mv = modelViewMatrix * vec4(pos, 1.0);
-    gl_PointSize = uSize * (0.6 + aSeed * 0.8) * (1.0 + vWave * 0.4) / max(0.5, -mv.z);
+    float geneGlow = smoothstep(0.12, 0.82, abs(vGene));
+    float genePulse = 0.86 + 0.14 * sin(uTime * 2.4 + aSeed * 18.0);
+    gl_PointSize = uSize * (0.6 + aSeed * 0.8) * (1.0 + vWave * 0.4)
+      * (1.0 + geneGlow * (0.42 + 0.22 * genePulse)) / max(0.5, -mv.z);
     gl_Position = projectionMatrix * mv;
   }
-`,pt=`
+`,gt=`
+  uniform float uTime;
   uniform vec3 uBio;
   uniform vec3 uData;
   uniform vec3 uPal[9];
@@ -215,9 +223,10 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
   varying float vSeed;
   varying float vTwinkle;
   varying float vWave;
+  varying float vGene;
   varying vec3 vShapePos;
 
-  ${Be}
+  ${We}
 
   void main() {
     vec2 d = gl_PointCoord - vec2(0.5);
@@ -252,6 +261,15 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
     float fusedSperm = wOvum * (1.0 - smoothstep(-1.18, -0.98, vShapePos.x));
     col = mix(col, vec3(0.9, 0.96, 1.0) * bright, fusedSperm * 0.96);
 
+    /* THE HERITABLE SIGNAL — the same highlighted particles move through
+       chromosomes, gametes, fertilization, mtDNA and the edited DNA locus.
+       Signed colour keeps maternal/bio and paternal/data material distinct
+       without labels, cards or an additional overlay draw call. */
+    float geneStrength = smoothstep(0.12, 0.82, abs(vGene));
+    float genePulse = 0.9 + 0.1 * sin(uTime * 2.4 + vSeed * 18.0);
+    vec3 geneCol = mix(uData, uBio, step(0.0, vGene));
+    col = mix(col, geneCol * (1.18 + genePulse * 0.22), geneStrength * 0.92);
+
     col = mix(col, uData, uDataMix * 0.7);
 
     /* the wavefront brightens the lattice and flashes LIME at its crest:
@@ -259,9 +277,10 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
     col *= 1.0 + vWave * 1.5;
     col = mix(col, uBio, smoothstep(0.72, 0.98, vWave));
 
-    gl_FragColor = vec4(col, soft * vTwinkle * uOpacity * (0.85 + vWave * 0.5));
+    float geneAlpha = 1.0 + geneStrength * 0.38;
+    gl_FragColor = vec4(col, soft * vTwinkle * uOpacity * (0.85 + vWave * 0.5) * geneAlpha);
   }
-`,dt=`
+`,yt=`
   uniform float uTime;
 
   varying vec3 vNormalW;
@@ -283,7 +302,7 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
     vPosW = (modelMatrix * world).xyz;
     gl_Position = projectionMatrix * modelViewMatrix * world;
   }
-`,ht=`
+`,xt=`
   uniform vec3 uBio;
   uniform vec3 uData;
   uniform float uOpacity;
@@ -297,7 +316,7 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
     vec3 col = mix(uData * 0.5, uBio * 0.85, fres);
     gl_FragColor = vec4(col, (0.12 + fres * 0.5) * uOpacity);
   }
-`;function gt(g){const e=oe(20260810),x=[];{const r=new Float32Array(g*3);for(let l=0;l<g;l++)r[l*3]=t(e)*.42,r[l*3+1]=t(e)*.42,r[l*3+2]=t(e)*.42;x.push(r)}{const r=new Float32Array(g*3),l=[];for(let v=0;v<26;v++)l.push([(e()*2-1)*2.4,(e()*2-1)*1.5,(e()*2-1)*.9]);for(let v=0;v<g;v++){const f=l[e()*l.length|0];r[v*3]=f[0]+t(e)*.16,r[v*3+1]=f[1]+t(e)*.16,r[v*3+2]=f[2]+t(e)*.16}x.push(r)}{const r=new Float32Array(g*3);for(let l=0;l<g;l++){const v=e();let f,n,i;if(v<.35){let a=t(e),s=t(e),u=t(e);const m=Math.hypot(a,s,u)||1,c=1.05+(e()-.5)*.08;r[l*3]=a/m*c,r[l*3+1]=s/m*c,r[l*3+2]=u/m*c;continue}else if(v<.47){let a=t(e),s=t(e),u=t(e);const m=Math.hypot(a,s,u)||1,c=.7+(e()-.5)*.045;f=a/m*c,n=s/m*c,i=u/m*c}else if(v<.68){const a=e()-.5;f=-.22+(e()<.5?-1:1)*a*.42+t(e)*.025,n=a*1.16+t(e)*.025,i=t(e)*.055}else if(v<.84){if(e()<.52){const s=e();f=.28+(e()<.5?-1:1)*s*.24+t(e)*.022,n=.02+s*.48+t(e)*.022}else{const s=e();f=.28+t(e)*.026,n=.04-s*.55+t(e)*.022}i=t(e)*.05}else if(v<.96){const a=e()*Math.PI*2,s=.2+t(e)*.018;f=.54+Math.cos(a)*s,n=-.58+Math.sin(a)*s,i=t(e)*.035}else{const a=e()<.55;f=(a?-.1:.37)+t(e)*.045,n=(a?.31:.22)+t(e)*.035,i=t(e)*.04}r[l*3]=f,r[l*3+1]=n,r[l*3+2]=i}x.push(r)}{const r=new Float32Array(g*3);for(let l=0;l<g;l++){const v=e();let f,n,i;if(v<.2)f=-1.5+t(e)*.3,n=t(e)*.22,i=t(e)*.13;else if(v<.34){const a=e(),s=e()*Math.PI*2,u=.085+(e()-.5)*.02;f=-1.16+a*.61,n=Math.cos(s)*u,i=Math.sin(s)*u}else if(v<.92){const a=e();f=-.55+a*3.15;const s=.05*(1-a)+.008;n=.18*Math.sin((f+.55)*2.2)+t(e)*s,i=t(e)*s}else f=(e()-.5)*4.5,n=t(e)*.8,i=t(e)*.8;r[l*3]=f-.4,r[l*3+1]=n,r[l*3+2]=i}x.push(r)}{const r=new Float32Array(g*3);for(let l=0;l<g;l++){const v=e();let f,n,i;if(v<.38){let a=t(e),s=t(e),u=t(e);const m=Math.hypot(a,s,u)||1,c=Math.cbrt(e())*1.16;f=a/m*c,n=s/m*c,i=u/m*c}else if(v<.56){let a=t(e),s=t(e),u=t(e);const m=Math.hypot(a,s,u)||1,c=1.32+(e()-.5)*.07;f=a/m*c,n=s/m*c,i=u/m*c}else if(v<.72){let a=t(e),s=t(e),u=t(e);const m=Math.hypot(a,s,u)||1,c=1.55+e()*.4;f=a/m*c+t(e)*.1,n=s/m*c+t(e)*.1,i=u/m*c+t(e)*.1}else if(v<.82)f=-1.48+t(e)*.18,n=.22+t(e)*.12,i=t(e)*.08;else{const a=e();f=-1.58-a*2.5;const s=.045*(1-a)+.008;n=.22+.3*Math.sin(a*5.2)*a+t(e)*s,i=t(e)*s}r[l*3]=f,r[l*3+1]=n,r[l*3+2]=i}x.push(r)}{const r=new Float32Array(g*3),l=(f,n,i,a,s)=>{const u=e();return[f+(i-f)*u+t(e)*s,n+(a-n)*u+t(e)*s,t(e)*s*1.6]},v=(f,n,i,a,s,u,m)=>{const c=e(),h=1-c;return[h*h*f+2*h*c*i+c*c*s+t(e)*m,h*h*n+2*h*c*a+c*c*u+t(e)*m,t(e)*m*1.6]};for(let f=0;f<g;f++){const n=e();let i,a,s;if(n<.13){const u=e()*Math.PI*2,m=.44+(e()-.5)*.05;i=-.18+Math.cos(u)*m,a=.62+Math.sin(u)*m*1.06,s=t(e)*.08}else if(n<.22)i=-.18+t(e)*.4,a=.62+t(e)*.42,s=t(e)*.3;else if(n<.25)[i,a,s]=l(-.6,.82,-.58,.36,.045),i-=Math.sin((a-.36)*3.2)*.07;else if(n<.4)[i,a,s]=v(.24,.94,.85,.12,.3,-.74,.08);else if(n<.52)i=.14+t(e)*.32,a=-.04+t(e)*.42,s=t(e)*.28;else if(n<.56)[i,a,s]=v(-.46,.28,-.5,-.2,-.02,-.52,.05);else if(n<.63)[i,a,s]=l(.26,-.56,-.26,-.4,.1);else if(n<.68)[i,a,s]=l(-.26,-.4,-.02,-.78,.075);else if(n<.71)i=.07+t(e)*.09,a=-.84+t(e)*.055,s=t(e)*.07;else if(n<.77)[i,a,s]=l(.1,.4,-.16,.1,.08);else if(n<.82)[i,a,s]=l(-.16,.1,-.48,.4,.065);else if(n<.85)i=-.53+t(e)*.075,a=.44+t(e)*.075,s=.04+t(e)*.06;else if(n<.96){let u=t(e),m=t(e),c=t(e);const h=Math.hypot(u,m,c)||1,y=1.5+(e()-.5)*.1;i=u/h*y*1.05,a=m/h*y*.95,s=c/h*y*.8}else i=t(e)*1.1,a=t(e)*1,s=t(e)*.7;r[f*3]=s*1.25,r[f*3+1]=a*1.25,r[f*3+2]=i*1.25}x.push(r)}{const r=new Float32Array(g*3),l=v=>.16*Math.sin(v*1.1);for(let v=0;v<g;v++){const f=e();let n,i,a;if(f<.3){let s=t(e),u=t(e),m=t(e);const c=Math.hypot(s,u,m)||1,h=.96+e()*.07;n=s/c*1.42*h,i=u/c*.6*h+l(n),a=m/c*.6*h}else if(f<.45){let s=t(e),u=t(e),m=t(e);const c=Math.hypot(s,u,m)||1;n=s/c*1.22,i=u/c*.5+l(n),a=m/c*.5}else if(f<.9){const u=-1.12+(e()*9|0)*.28,m=e()*Math.PI*2,c=Math.sqrt(e()),h=Math.cos(m)*c*.42,y=Math.sin(m)*c*.42;n=u+.09*Math.sin(h*9)+t(e)*.015,i=h+l(u),a=y}else n=(e()-.5)*2.4,i=t(e)*.4+l(n),a=t(e)*.4;r[v*3]=a,r[v*3+1]=i,r[v*3+2]=n}x.push(r)}{const r=new Float32Array(g*3),l=3,v=3.9,f=.62,n=30,i=2.1;for(let a=0;a<g;a++){const s=e(),u=e(),m=(u-.5)*v,c=u*l*Math.PI*2;if(s<.33)r[a*3]=Math.cos(c)*f+t(e)*.016,r[a*3+1]=m,r[a*3+2]=Math.sin(c)*f+t(e)*.016;else if(s<.66)r[a*3]=Math.cos(c+i)*f+t(e)*.016,r[a*3+1]=m,r[a*3+2]=Math.sin(c+i)*f+t(e)*.016;else{const h=((e()*n|0)/(n-1)-.5)*v,y=(h/v+.5)*l*Math.PI*2,b=Math.floor(e()*44)/43,M=Math.cos(y)*f,D=Math.sin(y)*f,q=Math.cos(y+i)*f,O=Math.sin(y+i)*f;r[a*3]=M+(q-M)*b+t(e)*.006,r[a*3+1]=h+t(e)*.006,r[a*3+2]=D+(O-D)*b+t(e)*.006}}x.push(r)}{const r=new Float32Array(g*3),l=.55,v=Math.cos(l),f=Math.sin(l);for(let n=0;n<g;n++){const i=e();let a,s,u;if(i<.82){let m=t(e),c=t(e),h=t(e);const y=Math.hypot(m,c,h)||1;m/=y,c/=y,h/=y;const b=1+.075*Math.sin(6*c+4*m)*Math.cos(5*h+2*c)+.05*Math.sin(11*m+7*h),M=.93+e()*.09;a=m*.95*b*M,s=c*.6*b*M,u=h*.8*b*M,s<-.32&&(s=-.32-(Math.abs(s)-.32)*.35),s>.05&&Math.abs(a)<.1&&(a+=(a>=0?1:-1)*.09),a+=(a>=0?1:-1)*.03}else if(i<.95){let m=t(e),c=t(e),h=t(e);const y=Math.hypot(m,c,h)||1;m/=y,c/=y,h/=y;const b=1+.05*Math.sin(26*c),M=.9+e()*.12;a=m*.42*b*M,s=-.48+c*.24*b*M,u=-.5+h*.34*b*M}else{const m=e(),c=(1-m*.55)*.11,h=e()*Math.PI*2;a=Math.cos(h)*c,s=-.4-m*.45,u=-.16+m*.26+Math.sin(h)*c}r[n*3]=a*v+u*f,r[n*3+1]=s,r[n*3+2]=-a*f+u*v}x.push(r)}return x}function De(){const g=getComputedStyle(document.documentElement),e=(x,r)=>{const l=g.getPropertyValue(x).trim();return new _e(l||r)};return{bio:e("--bio","#B6FF2E"),data:e("--data","#4FA8FF")}}const Oe={high:5600,low:2400};function xt(g,{quality:e="high"}={}){const x=new Je({canvas:g,alpha:!0,antialias:e==="high",powerPreference:"high-performance"});x.setClearColor(0,0);const r=new et,l=new tt(38,1,.1,120);l.position.set(0,0,4.4);const v=De(),f=new te(1.15,e==="high"?152:88,e==="high"?104:60),n=new N({uniforms:{uTime:{value:0},uAmp:{value:.1},uProbeDir:{value:new V(0,0,1)},uProbeStrength:{value:0},uBio:{value:v.bio.clone()},uData:{value:v.data.clone()},uOpacity:{value:1}},vertexShader:mt,fragmentShader:ft,transparent:!0,depthWrite:!1,side:ot}),i=new ce(f,n);i.renderOrder=3,r.add(i);const a=Oe[e]||Oe.high,s=gt(a),u=new ze,m=new Float32Array(s[0]),c=new Float32Array(s[1]),h=new Float32Array(a);{const o=oe(11);for(let d=0;d<a;d++)h[d]=o()}u.setAttribute("position",new U(s[0].slice(),3)),u.setAttribute("aPosA",new U(m,3)),u.setAttribute("aPosB",new U(c,3)),u.setAttribute("aSeed",new U(h,1)),u.boundingSphere=new Te(new V(0,0,0),6);const y=new N({uniforms:{uTime:{value:0},uStageMix:{value:0},uSize:{value:e==="high"?11:9},uDrift:{value:1},uBio:{value:v.bio.clone()},uData:{value:v.data.clone()},uPal:Ae(),uDataMix:{value:0},uStageF:{value:0},uWave:{value:0},uSwim:{value:0},uOpacity:{value:1}},vertexShader:vt,fragmentShader:pt,transparent:!0,depthWrite:!1,blending:ue}),b=new Fe(u,y);b.renderOrder=2,r.add(b);const M=new te(1,10,8),D=new N({uniforms:{uTime:{value:0},uBio:{value:v.bio.clone()},uData:{value:v.data.clone()},uOpacity:{value:1}},vertexShader:dt,fragmentShader:ht,transparent:!0,depthWrite:!1}),q=e==="high"?18:0,O=new at(M,D,Math.max(1,q));O.count=q;{const o=oe(7),d=new st,w=new nt,S=new V,W=new V;for(let T=0;T<q;T++){let E=t(o),F=t(o),P=t(o);const A=Math.hypot(E,F,P)||1,L=.55+o()*.38;W.set(E/A*L,F/A*L,P/A*L);const I=.05+o()*.09;S.set(I,I*(.7+o()*.6),I),d.compose(W,w,S),O.setMatrixAt(T,d)}}O.renderOrder=1,r.add(O);const Ee=`
+`;function wt(g){const e=re(20260810),y=[],b=[];{const c=new Float32Array(g*3);for(let h=0;h<g;h++)c[h*3]=t(e)*.42,c[h*3+1]=t(e)*.42,c[h*3+2]=t(e)*.42;y.push(c),b.push(new Float32Array(g))}{const c=new Float32Array(g*3),h=[];for(let p=0;p<26;p++)h.push([(e()*2-1)*2.4,(e()*2-1)*1.5,(e()*2-1)*.9]);for(let p=0;p<g;p++){const u=h[e()*h.length|0];c[p*3]=u[0]+t(e)*.16,c[p*3+1]=u[1]+t(e)*.16,c[p*3+2]=u[2]+t(e)*.16}y.push(c),b.push(new Float32Array(g))}{const c=new Float32Array(g*3),h=new Float32Array(g);for(let p=0;p<g;p++){const u=e();let i,l,r;if(u<.43){const a=t(e),s=t(e),m=t(e),n=Math.hypot(a,s,m)||1,f=1.05+(e()-.5)*.08;i=a/n*f,l=s/n*f,r=m/n*f}else if(u<.57){const a=t(e),s=t(e),m=t(e),n=Math.hypot(a,s,m)||1,f=.67+(e()-.5)*.045;i=a/n*f,l=s/n*f,r=m/n*f}else if(u<.68)i=t(e)*.42,l=t(e)*.42,r=t(e)*.24;else if(u<.81){const a=e()-.5;i=-.2+(e()<.5?-1:1)*a*.48+t(e)*.022,l=a*1.08+t(e)*.022,r=t(e)*.045,h[p]=-.82}else if(u<.91){if(e()<.54){const s=e();i=.23+(e()<.5?-1:1)*s*.22+t(e)*.02,l=.02+s*.43+t(e)*.02}else{const s=e();i=.23+t(e)*.022,l=.03-s*.5+t(e)*.02}r=t(e)*.045,h[p]=.82}else{const a=e()*Math.PI*2,s=.18+t(e)*.014;i=.57+Math.cos(a)*s,l=-.58+Math.sin(a)*s,r=t(e)*.035,h[p]=.58}c[p*3]=i,c[p*3+1]=l,c[p*3+2]=r}y.push(c),b.push(h)}{const c=new Float32Array(g*3),h=new Float32Array(g);for(let p=0;p<g;p++){const u=e();let i,l,r;if(u<.16)i=-1.5+t(e)*.3,l=t(e)*.22,r=t(e)*.13;else if(u<.23){const a=e()*Math.PI*2,s=2+(e()*3|0);i=-1.5+Math.cos(a*s)*.19+t(e)*.025,l=Math.sin(a*(s+1))*.12+t(e)*.02,r=Math.sin(a*2)*.055+t(e)*.018,h[p]=-.95}else if(u<.37){const a=e(),s=e()*Math.PI*2,m=.085+(e()-.5)*.02;i=-1.16+a*.61,l=Math.cos(s)*m,r=Math.sin(s)*m}else if(u<.95){const a=e();i=-.55+a*3.15;const s=.05*(1-a)+.008;l=.18*Math.sin((i+.55)*2.2)+t(e)*s,r=t(e)*s}else i=(e()-.5)*4.5,l=t(e)*.8,r=t(e)*.8;c[p*3]=i-.4,c[p*3+1]=l,c[p*3+2]=r}y.push(c),b.push(h)}{const c=new Float32Array(g*3),h=new Float32Array(g);for(let p=0;p<g;p++){const u=e();let i,l,r;if(u<.32){let a=t(e),s=t(e),m=t(e);const n=Math.hypot(a,s,m)||1,f=Math.cbrt(e())*1.16;i=a/n*f,l=s/n*f,r=m/n*f}else if(u<.5){let a=t(e),s=t(e),m=t(e);const n=Math.hypot(a,s,m)||1,f=1.32+(e()-.5)*.07;i=a/n*f,l=s/n*f,r=m/n*f}else if(u<.65){let a=t(e),s=t(e),m=t(e);const n=Math.hypot(a,s,m)||1,f=1.55+e()*.4;i=a/n*f+t(e)*.1,l=s/n*f+t(e)*.1,r=m/n*f+t(e)*.1}else if(u<.72){const a=e()*Math.PI*2,s=.22+.045*Math.sin(a*3);i=.3+Math.cos(a)*s+t(e)*.025,l=-.03+Math.sin(a)*s*.74+t(e)*.025,r=t(e)*.07,h[p]=.92}else if(u<.8)i=-1.48+t(e)*.18,l=.22+t(e)*.12,r=t(e)*.08;else if(u<.86){const a=e()*Math.PI*2;i=-.69+Math.cos(a*3)*.17+t(e)*.02,l=.18+Math.sin(a*4)*.12+t(e)*.02,r=Math.sin(a*2)*.05+t(e)*.018,h[p]=-.92}else{const a=e();i=-1.58-a*2.5;const s=.045*(1-a)+.008;l=.22+.3*Math.sin(a*5.2)*a+t(e)*s,r=t(e)*s}c[p*3]=i,c[p*3+1]=l,c[p*3+2]=r}y.push(c),b.push(h)}{const c=new Float32Array(g*3),h=(u,i,l,r,a)=>{const s=e();return[u+(l-u)*s+t(e)*a,i+(r-i)*s+t(e)*a,t(e)*a*1.6]},p=(u,i,l,r,a,s,m)=>{const n=e(),f=1-n;return[f*f*u+2*f*n*l+n*n*a+t(e)*m,f*f*i+2*f*n*r+n*n*s+t(e)*m,t(e)*m*1.6]};for(let u=0;u<g;u++){const i=e();let l,r,a;if(i<.13){const s=e()*Math.PI*2,m=.44+(e()-.5)*.05;l=-.18+Math.cos(s)*m,r=.62+Math.sin(s)*m*1.06,a=t(e)*.08}else if(i<.22)l=-.18+t(e)*.4,r=.62+t(e)*.42,a=t(e)*.3;else if(i<.25)[l,r,a]=h(-.6,.82,-.58,.36,.045),l-=Math.sin((r-.36)*3.2)*.07;else if(i<.4)[l,r,a]=p(.24,.94,.85,.12,.3,-.74,.08);else if(i<.52)l=.14+t(e)*.32,r=-.04+t(e)*.42,a=t(e)*.28;else if(i<.56)[l,r,a]=p(-.46,.28,-.5,-.2,-.02,-.52,.05);else if(i<.63)[l,r,a]=h(.26,-.56,-.26,-.4,.1);else if(i<.68)[l,r,a]=h(-.26,-.4,-.02,-.78,.075);else if(i<.71)l=.07+t(e)*.09,r=-.84+t(e)*.055,a=t(e)*.07;else if(i<.77)[l,r,a]=h(.1,.4,-.16,.1,.08);else if(i<.82)[l,r,a]=h(-.16,.1,-.48,.4,.065);else if(i<.85)l=-.53+t(e)*.075,r=.44+t(e)*.075,a=.04+t(e)*.06;else if(i<.96){let s=t(e),m=t(e),n=t(e);const f=Math.hypot(s,m,n)||1,w=1.5+(e()-.5)*.1;l=s/f*w*1.05,r=m/f*w*.95,a=n/f*w*.8}else l=t(e)*1.1,r=t(e)*1,a=t(e)*.7;c[u*3]=a*1.25,c[u*3+1]=r*1.25,c[u*3+2]=l*1.25}y.push(c),b.push(new Float32Array(g))}{const c=new Float32Array(g*3),h=new Float32Array(g),p=u=>.16*Math.sin(u*1.1);for(let u=0;u<g;u++){const i=e();let l,r,a;if(i<.28){let s=t(e),m=t(e),n=t(e);const f=Math.hypot(s,m,n)||1,w=.96+e()*.07;l=s/f*1.42*w,r=m/f*.6*w+p(l),a=n/f*.6*w}else if(i<.43){let s=t(e),m=t(e),n=t(e);const f=Math.hypot(s,m,n)||1;l=s/f*1.22,r=m/f*.5+p(l),a=n/f*.5}else if(i<.86){const m=-1.12+(e()*9|0)*.28,n=e()*Math.PI*2,f=Math.sqrt(e()),w=Math.cos(n)*f*.42,S=Math.sin(n)*f*.42;l=m+.09*Math.sin(w*9)+t(e)*.015,r=w+p(m),a=S}else if(i<.94){const s=e()*Math.PI*2;l=-.38+Math.cos(s)*.24+t(e)*.014,r=p(-.38)+Math.sin(s)*.17+t(e)*.014,a=t(e)*.025,h[u]=.88}else l=(e()-.5)*2.4,r=t(e)*.4+p(l),a=t(e)*.4;c[u*3]=a,c[u*3+1]=r,c[u*3+2]=l}y.push(c),b.push(h)}{const c=new Float32Array(g*3),h=new Float32Array(g),p=3,u=3.9,i=.62,l=30,r=2.1,a=19,s=[9,10],m=n=>(n/(l-1)-.5)*u;for(let n=0;n<g;n++){const f=e(),w=e(),S=(w-.5)*u,x=w*p*Math.PI*2;if(f<.33)c[n*3]=Math.cos(x)*i+t(e)*.016,c[n*3+1]=S,c[n*3+2]=Math.sin(x)*i+t(e)*.016,Math.abs(S-m(a))<.1&&(h[n]=-.58),Math.abs(S-m(s[0]))<.14&&(h[n]=.42);else if(f<.66)c[n*3]=Math.cos(x+r)*i+t(e)*.016,c[n*3+1]=S,c[n*3+2]=Math.sin(x+r)*i+t(e)*.016,Math.abs(S-m(a))<.1&&(h[n]=.58),Math.abs(S-m(s[1]))<.14&&(h[n]=.42);else{const C=e()*l|0,$=m(C),A=($/u+.5)*p*Math.PI*2,I=Math.floor(e()*44)/43,T=Math.cos(A)*i,J=Math.sin(A)*i,ee=Math.cos(A+r)*i,B=Math.sin(A+r)*i;c[n*3]=T+(ee-T)*I+t(e)*.006,c[n*3+1]=$+t(e)*.006,c[n*3+2]=J+(B-J)*I+t(e)*.006,C===a&&(h[n]=I<.5?-1:1),s.includes(C)&&(h[n]=.72)}}y.push(c),b.push(h)}{const c=new Float32Array(g*3),h=.55,p=Math.cos(h),u=Math.sin(h);for(let i=0;i<g;i++){const l=e();let r,a,s;if(l<.82){let m=t(e),n=t(e),f=t(e);const w=Math.hypot(m,n,f)||1;m/=w,n/=w,f/=w;const S=1+.075*Math.sin(6*n+4*m)*Math.cos(5*f+2*n)+.05*Math.sin(11*m+7*f),x=.93+e()*.09;r=m*.95*S*x,a=n*.6*S*x,s=f*.8*S*x,a<-.32&&(a=-.32-(Math.abs(a)-.32)*.35),a>.05&&Math.abs(r)<.1&&(r+=(r>=0?1:-1)*.09),r+=(r>=0?1:-1)*.03}else if(l<.95){let m=t(e),n=t(e),f=t(e);const w=Math.hypot(m,n,f)||1;m/=w,n/=w,f/=w;const S=1+.05*Math.sin(26*n),x=.9+e()*.12;r=m*.42*S*x,a=-.48+n*.24*S*x,s=-.5+f*.34*S*x}else{const m=e(),n=(1-m*.55)*.11,f=e()*Math.PI*2;r=Math.cos(f)*n,a=-.4-m*.45,s=-.16+m*.26+Math.sin(f)*n}c[i*3]=r*p+s*u,c[i*3+1]=a,c[i*3+2]=-r*u+s*p}y.push(c),b.push(new Float32Array(g))}return{positions:y,genes:b}}function Ee(){const g=getComputedStyle(document.documentElement),e=(y,b)=>{const c=g.getPropertyValue(y).trim();return new Re(c||b)};return{bio:e("--bio","#B6FF2E"),data:e("--data","#4FA8FF")}}const _e={high:5600,low:2400};function St(g,{quality:e="high"}={}){const y=new ot({canvas:g,alpha:!0,antialias:e==="high",powerPreference:"high-performance"});y.setClearColor(0,0);const b=new at,c=new st(38,1,.1,120);c.position.set(0,0,4.4);const h=Ee(),p=new ie(1.15,e==="high"?152:88,e==="high"?104:60),u=new H({uniforms:{uTime:{value:0},uAmp:{value:.1},uProbeDir:{value:new j(0,0,1)},uProbeStrength:{value:0},uBio:{value:h.bio.clone()},uData:{value:h.data.clone()},uOpacity:{value:1}},vertexShader:pt,fragmentShader:dt,transparent:!0,depthWrite:!1,side:nt}),i=new pe(p,u);i.renderOrder=3,b.add(i);const l=_e[e]||_e.high,{positions:r,genes:a}=wt(l),s=new De,m=new Float32Array(r[0]),n=new Float32Array(r[1]),f=new Float32Array(a[0]),w=new Float32Array(a[1]),S=new Float32Array(l);{const o=re(11);for(let v=0;v<l;v++)S[v]=o()}s.setAttribute("position",new k(r[0].slice(),3)),s.setAttribute("aPosA",new k(m,3)),s.setAttribute("aPosB",new k(n,3)),s.setAttribute("aGeneA",new k(f,1)),s.setAttribute("aGeneB",new k(w,1)),s.setAttribute("aSeed",new k(S,1)),s.boundingSphere=new Ge(new j(0,0,0),6);const x=new H({uniforms:{uTime:{value:0},uStageMix:{value:0},uSize:{value:e==="high"?11:9},uDrift:{value:1},uBio:{value:h.bio.clone()},uData:{value:h.data.clone()},uPal:Be(),uDataMix:{value:0},uStageF:{value:0},uWave:{value:0},uSwim:{value:0},uOpacity:{value:1}},vertexShader:vt,fragmentShader:gt,transparent:!0,depthWrite:!1,blending:de}),C=new Oe(s,x);C.renderOrder=2,b.add(C);const $=new ie(1,10,8),A=new H({uniforms:{uTime:{value:0},uBio:{value:h.bio.clone()},uData:{value:h.data.clone()},uOpacity:{value:1}},vertexShader:yt,fragmentShader:xt,transparent:!0,depthWrite:!1}),I=e==="high"?18:0,T=new it($,A,Math.max(1,I));T.count=I;{const o=re(7),v=new rt,M=new lt,P=new j,R=new j;for(let D=0;D<I;D++){let W=t(o),G=t(o),z=t(o);const O=Math.hypot(W,G,z)||1,V=.55+o()*.38;R.set(W/O*V,G/O*V,z/O*V);const q=.05+o()*.09;P.set(q,q*(.7+o()*.6),q),v.compose(R,M,P),T.setMatrixAt(D,v)}}T.renderOrder=1,b.add(T);const J=`
     uniform float uTime;
     uniform float uProg;
     uniform float uOpacity;
@@ -305,7 +324,7 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
     uniform vec3 uData;
     varying vec3 vDir;
 
-    ${We}
+    ${ke}
 
     void main() {
       float n = snoise(vDir * 2.3 + vec3(0.0, uTime * 0.015, uTime * 0.01)) * 0.6
@@ -318,13 +337,13 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
       vec3 col = tint * glow * 0.17 * (0.7 + 0.3 * vDir.y);
       gl_FragColor = vec4(col, uOpacity * glow * 0.5);
     }
-  `,me=new te(30,32,24),C=new N({uniforms:{uTime:{value:0},uProg:{value:0},uOpacity:{value:.5},uBio:{value:v.bio.clone()},uData:{value:v.data.clone()}},vertexShader:`
+  `,ee=new ie(30,32,24),B=new H({uniforms:{uTime:{value:0},uProg:{value:0},uOpacity:{value:.5},uBio:{value:h.bio.clone()},uData:{value:h.data.clone()}},vertexShader:`
       varying vec3 vDir;
       void main() {
         vDir = normalize(position);
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
-    `,fragmentShader:Ee,transparent:!0,depthWrite:!1,side:it}),fe=new ce(me,C);fe.renderOrder=-2,r.add(fe);const Re=`
+    `,fragmentShader:J,transparent:!0,depthWrite:!1,side:ct}),ve=new pe(ee,B);ve.renderOrder=-2,b.add(ve);const Ce=`
     varying vec2 vUv;
     void main() {
       /* billboard: anchor at the origin in view space, spread the quad */
@@ -333,7 +352,7 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
       vUv = position.xy;
       gl_Position = projectionMatrix * mv;
     }
-  `,ke=`
+  `,Ie=`
     uniform float uTime;
     uniform float uFuse;
     varying vec2 vUv;
@@ -361,7 +380,7 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
       float a = (core * 0.5 + cortex * 0.2 + (ring1 + ring2) * 0.46) * uFuse;
       gl_FragColor = vec4(col, a);
     }
-  `,ve=new rt(1,1),K=new N({uniforms:{uTime:{value:0},uFuse:{value:0}},vertexShader:Re,fragmentShader:ke,transparent:!0,depthWrite:!1,depthTest:!1,blending:ue}),Y=new ce(ve,K);Y.renderOrder=4,Y.visible=!1,r.add(Y);const Ce=`
+  `,ge=new ut(1,1),te=new H({uniforms:{uTime:{value:0},uFuse:{value:0}},vertexShader:Ce,fragmentShader:Ie,transparent:!0,depthWrite:!1,depthTest:!1,blending:de}),oe=new pe(ge,te);oe.renderOrder=4,oe.visible=!1,b.add(oe);const Le=`
     attribute float aSeed;
     uniform float uTime;
     uniform float uProg;
@@ -457,7 +476,7 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
       gl_PointSize = uSize * (0.3 + aSeed * 1.2) / max(1.0, -mv.z * 0.22);
       gl_Position = projectionMatrix * mv;
     }
-  `,Ge=`
+  `,Ne=`
     uniform vec3 uBio;
     uniform vec3 uData;
     uniform vec3 uPal[9];
@@ -465,7 +484,7 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
     varying float vSeed;
     varying float vGlow;
 
-    ${Be}
+    ${We}
 
     void main() {
       vec2 d = gl_PointCoord - vec2(0.5);
@@ -479,4 +498,4 @@ import{W as Je,S as et,P as tt,b as te,a as N,F as ot,V,M as ce,d as ze,e as U,p
 
       gl_FragColor = vec4(col, soft * (0.1 + vGlow * 0.24) * uOpacity);
     }
-  `,j=e==="high"?7e3:3e3,R=new ze;{const o=new Float32Array(j*3),d=new Float32Array(j),w=oe(990749);for(let S=0;S<j;S++){let W=t(w),T=t(w),E=t(w);const F=Math.hypot(W,T,E)||1,P=7+17*Math.pow(w(),.65);o[S*3]=W/F*P,o[S*3+1]=T/F*P*.8,o[S*3+2]=E/F*P,d[S]=w()}R.setAttribute("position",new U(o,3)),R.setAttribute("aSeed",new U(d,1)),R.boundingSphere=new Te(new V(0,0,0),40)}const G=new N({uniforms:{uTime:{value:0},uProg:{value:0},uSize:{value:e==="high"?26:22},uOpacity:{value:1},uBio:{value:v.bio.clone()},uData:{value:v.data.clone()},uPal:Ae()},vertexShader:Ce,fragmentShader:Ge,transparent:!0,depthWrite:!1,blending:ue}),pe=new Fe(R,G);pe.renderOrder=0,r.add(pe);const Le=()=>{const o=De();for(const d of[n,y,D,C,G])d.uniforms.uBio.value.copy(o.bio),d.uniforms.uData.value.copy(o.data)},de=new MutationObserver(Le);de.observe(document.documentElement,{attributes:!0,attributeFilter:["class"]});let he=0,_=!1,ae=e==="high"?11:9,ge=.03,se=[0,1];const B={x:0,y:0,strength:0},k={x:0,y:0,strength:0},ne=new ct,ye=new lt,H=new V(0,0,1);let $=0,Q=!1,Z=!1,J=0,z=0,ie=null,ee=0,X=0;const Ie=(o,d)=>{se[0]===o&&se[1]===d||(se=[o,d],u.getAttribute("aPosA").array.set(s[o]),u.getAttribute("aPosB").array.set(s[d]),u.getAttribute("aPosA").needsUpdate=!0,u.getAttribute("aPosB").needsUpdate=!0)},Ne=()=>{const o=he,d=8,w=Math.min(d-.001,o*d),S=Math.min(d-1,Math.floor(w));Ie(S,S+1);const W=w-S;y.uniforms.uStageMix.value=p.smoothstep(W,.12,.88),y.uniforms.uStageF.value=S+p.smoothstep(W,.12,.88),y.uniforms.uSwim.value=p.smoothstep(o,.3,.36)*(1-p.smoothstep(o,.46,.52));const T=p.smoothstep(o,.455,.485)*(1-p.smoothstep(o,.555,.615));K.uniforms.uFuse.value=T,Y.visible=T>.01;const E=p.smoothstep(o,.02,.24),F=p.smoothstep(o,.8,.86)*(1-p.smoothstep(o,.92,.97)),P=p.smoothstep(o,.3,.36)*(1-p.smoothstep(o,.44,.5)),A=p.smoothstep(o,.44,.5)*(1-p.smoothstep(o,.54,.6)),L=p.smoothstep(o,.56,.62)*(1-p.smoothstep(o,.66,.72)),I=p.smoothstep(o,.68,.73)*(1-p.smoothstep(o,.79,.84)),re=p.clamp(1/l.aspect-1,0,1.4)/1.4,Ue=p.smoothstep(o,.9,.97),qe=re*(.4*p.smoothstep(o,.24,.4)+1*P+1.5*A+.9*L+1.2*I+1.8*F+1.6*Ue),je=1-p.smoothstep(o,.08,.28),He=_?1.4*je:0,$e=_?4.8*P:0,Qe=_?5.5*A:0,be=4.4-3.1*E+1.2*p.smoothstep(o,.3,.9)+1.7*F+1.4*P+3.4*A+2.6*L+1.9*I+qe+He+$e+Qe,le=.55*p.smoothstep(o,.16,.3)+.55*p.smoothstep(o,.3,.46)+.4*p.smoothstep(o,.5,.64)+.4*p.smoothstep(o,.66,.78)+2.2*p.smoothstep(o,.8,.92),Xe=_?-.34*A:0,Se=-.52*(1-.6*re)*p.smoothstep(o,.93,.985)*Math.cos(le)+Xe,Me=-.55*re*p.smoothstep(o,.06,.2);if(l.position.x=Math.sin(le)*be+Se,l.position.z=Math.cos(le)*be,l.position.y=Me+-.15*Math.sin(o*Math.PI)+.6*p.smoothstep(o,.3,.42)*(1-p.smoothstep(o,.52,.64)),l.lookAt(Se,Me,0),_){const Ze=1-.45*p.smoothstep(o,.08,.3);l.rotateZ(p.degToRad(-11)*Ze)}n.uniforms.uOpacity.value=1-p.smoothstep(o,.08,.26),i.visible=n.uniforms.uOpacity.value>.01;const Ke=1+E*2.2;i.scale.setScalar(Ke),D.uniforms.uOpacity.value=n.uniforms.uOpacity.value,O.visible=i.visible,y.uniforms.uDataMix.value=p.smoothstep(o,.92,.99),y.uniforms.uDrift.value=1-.6*p.smoothstep(o,.93,.99),y.uniforms.uWave.value=p.smoothstep(o,.93,.99);const Pe=p.smoothstep(o,.8,.86)*(1-p.smoothstep(o,.9,.96));ge=.03+.09*Pe,y.uniforms.uSize.value=ae*(1+.6*p.smoothstep(o,.1,.5)+.35*Pe+.45*p.smoothstep(o,.93,1)+(_?.45*P+1*A:0));const Ye=1-p.smoothstep(o,.05,.2);n.uniforms.uProbeStrength.value=k.strength*Ye,C.uniforms.uProg.value=o,G.uniforms.uOpacity.value=1-.6*p.smoothstep(o,.44,.5)*(1-p.smoothstep(o,.68,.74)),C.uniforms.uOpacity.value=.5+.5*p.smoothstep(o,.15,.4),G.uniforms.uProg.value=o},Ve=()=>{ye.set(B.x,B.y),ne.setFromCamera(ye,l);const o=ne.ray.origin,d=ne.ray.direction,w=Math.max(0,-o.dot(d));H.copy(o).addScaledVector(d,w),H.lengthSq()<1e-6&&H.set(0,0,1),H.normalize(),n.uniforms.uProbeDir.value.copy(H)},xe=()=>{const o=performance.now()/1e3,d=Math.min(J?o-J:0,.1);J=o,z+=d,k.x+=(B.x-k.x)*.12,k.y+=(B.y-k.y)*.12,k.strength+=(B.strength-k.strength)*.08,n.uniforms.uAmp.value=.085+.028*Math.sin(z*.62),n.uniforms.uTime.value=z,y.uniforms.uTime.value=z,D.uniforms.uTime.value=z,i.rotation.y=z*.05,b.rotation.y+=d*ge,C.uniforms.uTime.value=z,G.uniforms.uTime.value=z,K.uniforms.uTime.value=z,Ve(),Ne(),x.render(r,l)},we=()=>{if(!(!Q||Z)&&($=requestAnimationFrame(we),xe(),ie)){ee++;const o=performance.now();X||(X=o);const d=o-X;d>=2e3&&(ie(ee*1e3/d),ee=0,X=o)}};return{setProbe(o,d,w){B.x=o,B.y=d,B.strength=w},setProgress(o){he=p.clamp(o,0,1)},resize(o,d,w){x.setPixelRatio(w),x.setSize(o,d,!1),_=o<=640&&d>o,l.fov=_?48:38,l.aspect=o/d,l.updateProjectionMatrix()},start(){Q||Z||(Q=!0,J=0,ee=0,X=0,$=requestAnimationFrame(we))},stop(){Q=!1,cancelAnimationFrame($),$=0},renderOnce(){Z||xe()},onFps(o){ie=o},setQuality(o){if(o==="low"){if(ae=9,u.setDrawRange(0,Math.floor(a/2)),R.setDrawRange(0,Math.floor(j/2)),i.geometry===f){const d=new te(1.15,88,60);i.geometry=d,f.dispose()}}else ae=e==="high"?11:9,u.setDrawRange(0,a),R.setDrawRange(0,j)},dispose(){Z=!0,Q=!1,cancelAnimationFrame($),de.disconnect(),me.dispose(),C.dispose(),ve.dispose(),K.dispose(),R.dispose(),G.dispose(),i.geometry.dispose(),n.dispose(),u.dispose(),y.dispose(),M.dispose(),D.dispose(),O.dispose(),x.dispose();const o=x.getContext(),d=o&&o.getExtension("WEBGL_lose_context");d&&d.loseContext()}}}export{xt as createCellScene};
+  `,Q=e==="high"?7e3:3e3,L=new De;{const o=new Float32Array(Q*3),v=new Float32Array(Q),M=re(990749);for(let P=0;P<Q;P++){let R=t(M),D=t(M),W=t(M);const G=Math.hypot(R,D,W)||1,z=7+17*Math.pow(M(),.65);o[P*3]=R/G*z,o[P*3+1]=D/G*z*.8,o[P*3+2]=W/G*z,v[P]=M()}L.setAttribute("position",new k(o,3)),L.setAttribute("aSeed",new k(v,1)),L.boundingSphere=new Ge(new j(0,0,0),40)}const U=new H({uniforms:{uTime:{value:0},uProg:{value:0},uSize:{value:e==="high"?26:22},uOpacity:{value:1},uBio:{value:h.bio.clone()},uData:{value:h.data.clone()},uPal:Be()},vertexShader:Le,fragmentShader:Ne,transparent:!0,depthWrite:!1,blending:de}),ye=new Oe(L,U);ye.renderOrder=0,b.add(ye);const Ue=()=>{const o=Ee();for(const v of[u,x,A,B,U])v.uniforms.uBio.value.copy(o.bio),v.uniforms.uData.value.copy(o.data)},xe=new MutationObserver(Ue);xe.observe(document.documentElement,{attributes:!0,attributeFilter:["class"]});let we=0,E=!1,le=e==="high"?11:9,be=.03,ce=[0,1];const _={x:0,y:0,strength:0},N={x:0,y:0,strength:0},ue=new ft,Se=new mt,Y=new j(0,0,1);let K=0,X=!1,ae=!1,se=0,F=0,me=null,ne=0,Z=0;const Ve=(o,v)=>{ce[0]===o&&ce[1]===v||(ce=[o,v],s.getAttribute("aPosA").array.set(r[o]),s.getAttribute("aPosB").array.set(r[v]),s.getAttribute("aGeneA").array.set(a[o]),s.getAttribute("aGeneB").array.set(a[v]),s.getAttribute("aPosA").needsUpdate=!0,s.getAttribute("aPosB").needsUpdate=!0,s.getAttribute("aGeneA").needsUpdate=!0,s.getAttribute("aGeneB").needsUpdate=!0)},qe=()=>{const o=we,v=8,M=Math.min(v-.001,o*v),P=Math.min(v-1,Math.floor(M));Ve(P,P+1);const R=M-P;x.uniforms.uStageMix.value=d.smoothstep(R,.12,.88),x.uniforms.uStageF.value=P+d.smoothstep(R,.12,.88),x.uniforms.uSwim.value=d.smoothstep(o,.3,.36)*(1-d.smoothstep(o,.46,.52));const D=d.smoothstep(o,.455,.485)*(1-d.smoothstep(o,.555,.615));te.uniforms.uFuse.value=D,oe.visible=D>.01;const W=d.smoothstep(o,.02,.24),G=d.smoothstep(o,.8,.86)*(1-d.smoothstep(o,.92,.97)),z=d.smoothstep(o,.3,.36)*(1-d.smoothstep(o,.44,.5)),O=d.smoothstep(o,.44,.5)*(1-d.smoothstep(o,.54,.6)),V=d.smoothstep(o,.56,.62)*(1-d.smoothstep(o,.66,.72)),q=d.smoothstep(o,.68,.73)*(1-d.smoothstep(o,.79,.84)),fe=d.clamp(1/c.aspect-1,0,1.4)/1.4,je=d.smoothstep(o,.9,.97),$e=fe*(.4*d.smoothstep(o,.24,.4)+1*z+1.5*O+.9*V+1.2*q+1.8*G+1.6*je),Qe=1-d.smoothstep(o,.08,.28),Ye=E?1.4*Qe:0,Ke=E?4.8*z:0,Xe=E?5.5*O:0,ze=4.4-3.1*W+1.2*d.smoothstep(o,.3,.9)+1.7*G+1.4*z+3.4*O+2.6*V+1.9*q+$e+Ye+Ke+Xe,he=.55*d.smoothstep(o,.16,.3)+.55*d.smoothstep(o,.3,.46)+.4*d.smoothstep(o,.5,.64)+.4*d.smoothstep(o,.66,.78)+2.2*d.smoothstep(o,.8,.92),Ze=E?-.34*O:0,Ae=-.52*(1-.6*fe)*d.smoothstep(o,.93,.985)*Math.cos(he)+Ze,Te=-.55*fe*d.smoothstep(o,.06,.2);if(c.position.x=Math.sin(he)*ze+Ae,c.position.z=Math.cos(he)*ze,c.position.y=Te+-.15*Math.sin(o*Math.PI)+.6*d.smoothstep(o,.3,.42)*(1-d.smoothstep(o,.52,.64)),c.lookAt(Ae,Te,0),E){const tt=1-.45*d.smoothstep(o,.08,.3);c.rotateZ(d.degToRad(-11)*tt)}u.uniforms.uOpacity.value=1-d.smoothstep(o,.08,.26),i.visible=u.uniforms.uOpacity.value>.01;const Je=1+W*2.2;i.scale.setScalar(Je),A.uniforms.uOpacity.value=u.uniforms.uOpacity.value,T.visible=i.visible,x.uniforms.uDataMix.value=d.smoothstep(o,.92,.99),x.uniforms.uDrift.value=1-.6*d.smoothstep(o,.93,.99),x.uniforms.uWave.value=d.smoothstep(o,.93,.99);const Fe=d.smoothstep(o,.8,.86)*(1-d.smoothstep(o,.9,.96));be=.03+.09*Fe,x.uniforms.uSize.value=le*(1+.6*d.smoothstep(o,.1,.5)+.35*Fe+.45*d.smoothstep(o,.93,1)+(E?.45*z+1*O:0));const et=1-d.smoothstep(o,.05,.2);u.uniforms.uProbeStrength.value=N.strength*et,B.uniforms.uProg.value=o,U.uniforms.uOpacity.value=1-.6*d.smoothstep(o,.44,.5)*(1-d.smoothstep(o,.68,.74)),B.uniforms.uOpacity.value=.5+.5*d.smoothstep(o,.15,.4),U.uniforms.uProg.value=o},He=()=>{Se.set(_.x,_.y),ue.setFromCamera(Se,c);const o=ue.ray.origin,v=ue.ray.direction,M=Math.max(0,-o.dot(v));Y.copy(o).addScaledVector(v,M),Y.lengthSq()<1e-6&&Y.set(0,0,1),Y.normalize(),u.uniforms.uProbeDir.value.copy(Y)},Me=()=>{const o=performance.now()/1e3,v=Math.min(se?o-se:0,.1);se=o,F+=v,N.x+=(_.x-N.x)*.12,N.y+=(_.y-N.y)*.12,N.strength+=(_.strength-N.strength)*.08,u.uniforms.uAmp.value=.085+.028*Math.sin(F*.62),u.uniforms.uTime.value=F,x.uniforms.uTime.value=F,A.uniforms.uTime.value=F,i.rotation.y=F*.05,C.rotation.y+=v*be,B.uniforms.uTime.value=F,U.uniforms.uTime.value=F,te.uniforms.uTime.value=F,He(),qe(),y.render(b,c)},Pe=()=>{if(!(!X||ae)&&(K=requestAnimationFrame(Pe),Me(),me)){ne++;const o=performance.now();Z||(Z=o);const v=o-Z;v>=2e3&&(me(ne*1e3/v),ne=0,Z=o)}};return{setProbe(o,v,M){_.x=o,_.y=v,_.strength=M},setProgress(o){we=d.clamp(o,0,1)},resize(o,v,M){y.setPixelRatio(M),y.setSize(o,v,!1),E=o<=640&&v>o,c.fov=E?48:38,c.aspect=o/v,c.updateProjectionMatrix()},start(){X||ae||(X=!0,se=0,ne=0,Z=0,K=requestAnimationFrame(Pe))},stop(){X=!1,cancelAnimationFrame(K),K=0},renderOnce(){ae||Me()},onFps(o){me=o},setQuality(o){if(o==="low"){if(le=9,s.setDrawRange(0,Math.floor(l/2)),L.setDrawRange(0,Math.floor(Q/2)),i.geometry===p){const v=new ie(1.15,88,60);i.geometry=v,p.dispose()}}else le=e==="high"?11:9,s.setDrawRange(0,l),L.setDrawRange(0,Q)},dispose(){ae=!0,X=!1,cancelAnimationFrame(K),xe.disconnect(),ee.dispose(),B.dispose(),ge.dispose(),te.dispose(),L.dispose(),U.dispose(),i.geometry.dispose(),u.dispose(),s.dispose(),x.dispose(),$.dispose(),A.dispose(),T.dispose(),y.dispose();const o=y.getContext(),v=o&&o.getExtension("WEBGL_lose_context");v&&v.loseContext()}}}export{St as createCellScene};
